@@ -14,7 +14,7 @@
 
 #!/bin/bash
 
-root_dir='/tmp/'
+root_dir='tmp/'
 seed=20
 env='HalfCheetah-v2'
 num_trajs=4
