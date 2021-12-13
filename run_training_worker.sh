@@ -14,12 +14,12 @@
 
 #!/bin/bash
 
-root_dir='/tmp/'
+root_dir='tmp/'
 seed=20
 env='HalfCheetah-v2'
 expert_env='HalfCheetah-v1'
 num_trajs=4
-expert_dir='/data/dac/gail-experts'
+expert_dir='data/ssgail/gail-experts'
 use_gpu=false
 learn_absorbing=true
 gail_loss='airl'
