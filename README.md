@@ -11,6 +11,7 @@ Getting Started
 We use conda to setup the environments, but any other package manager should suffice. We use Python 3.5.4
 
 ```
+conda create --name ss python=3.5.4
 pip install -r requirements.txt
 wget https://www.roboti.us/download/mjpro150_linux.zip
 unzip mjpro150
