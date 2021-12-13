@@ -43,16 +43,16 @@ class Actor(tf.keras.Model):
     super(Actor, self).__init__()
 
     self.main = tf.keras.Sequential([
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=400,
             activation='relu',
             kernel_initializer=tf.orthogonal_initializer(),
             input_shape=(input_dim,)),
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=300,
             activation='relu',
             kernel_initializer=tf.orthogonal_initializer()),
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=action_dim,
             activation='tanh',
             kernel_initializer=tf.orthogonal_initializer(0.01))
@@ -77,16 +77,16 @@ class StochasticActor(tf.keras.Model):
     super(StochasticActor, self).__init__()
 
     self.mu = tf.keras.Sequential([
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=64,
             activation='tanh',
             kernel_initializer=tf.orthogonal_initializer(),
             input_shape=(input_dim,)),
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=64,
             activation='tanh',
             kernel_initializer=tf.orthogonal_initializer()),
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=action_dim,
             activation=None,
             kernel_initializer=tf.orthogonal_initializer(0.01))
@@ -137,16 +137,16 @@ class Critic(tf.keras.Model):
   def __init__(self, input_dim):
     super(Critic, self).__init__()
     self.main = tf.keras.Sequential([
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=64,
             input_shape=(input_dim,),
             activation='tanh',
             kernel_initializer=tf.orthogonal_initializer()),
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=64,
             activation='tanh',
             kernel_initializer=tf.orthogonal_initializer()),
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=1,
             activation=None,
             kernel_initializer=tf.orthogonal_initializer())
@@ -168,16 +168,16 @@ class CriticDDPG(tf.keras.Model):
     super(CriticDDPG, self).__init__()
 
     self.main = tf.keras.Sequential([
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=400,
             input_shape=(input_dim,),
             activation='relu',
             kernel_initializer=tf.orthogonal_initializer()),
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=300,
             activation='relu',
             kernel_initializer=tf.orthogonal_initializer()),
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=1, kernel_initializer=tf.orthogonal_initializer())
     ])
 
