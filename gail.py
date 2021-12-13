@@ -39,14 +39,14 @@ class Discriminator(tf.keras.Model):
     kernel_init = tf.keras.initializers.Orthogonal(gain=1.0)
 
     self.main = tf.keras.Sequential([
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=256,
             input_shape=(input_dim,),
             activation='tanh',
             kernel_initializer=kernel_init),
-        tf.layers.Dense(
+        tf.keras.layers.Dense(
             units=256, activation='tanh', kernel_initializer=kernel_init),
-        tf.layers.Dense(units=1, kernel_initializer=kernel_init)
+        tf.keras.layers.Dense(units=1, kernel_initializer=kernel_init)
     ])
 
   def call(self, inputs):
