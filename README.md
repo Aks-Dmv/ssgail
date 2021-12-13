@@ -38,7 +38,7 @@ git clone https://github.com/ikostrikov/gail-experts.git
 Then use our import script to turn them into checkpoints (~1-2 hours):
 
 ```
-python generate_expert_data.py --src_data_dir /data/dac/gail-experts/ --dst_data_dir /data/dac/gail-experts/
+python generate_expert_data.py --src_data_dir data/dac/gail-experts/ --dst_data_dir data/dac/gail-experts/
 ```
 
 Running Training
