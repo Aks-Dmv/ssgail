@@ -1,9 +1,9 @@
-Discriminator-Actor-Critic: Addressing Sample Inefficiency and Reward Bias in Adversarial Imitation Learning
+SS-GAIL
 ============================================================================================================
-Ilya Kostrikov, Kumar Krishna Agrawal, Debidatta Dwibedi, Sergey Levine, Jonathan Tompson
+By: Akshay Dharmavaram
 -----------------------------------------------------------------------------------------
 
-Source code to accompany our [paper](https://arxiv.org/abs/1809.02925).
+Code adapted from [DAC](https://github.com/google-research/google-research/tree/master/dac)
 
 Getting Started
 --------------------
@@ -12,8 +12,9 @@ We use conda to setup the environments, but any other package manager should suf
 
 ```
 conda create --name ssgail python=3.5.4
+conda activate ssgail
 pip install -r requirements.txt
-bash install_mujoco150.sh
+bash install_mujoco150.sh # If this doesn't working, just install mujoco150 manually
 ```
 
 Generating / Downloading Expert Trajectories:
