@@ -20,6 +20,7 @@ mv mjpro150 .mujoco/mjpro150
 cd .mujoco
 wget https://www.roboti.us/file/mjkey.txt
 cd
+pip install --upgrade pip
 pip install -U 'mujoco-py<1.50.2,>=1.50.1'
 python -c 'import mujoco_py'
 ```
