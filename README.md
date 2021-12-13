@@ -5,31 +5,39 @@ Ilya Kostrikov, Kumar Krishna Agrawal, Debidatta Dwibedi, Sergey Levine, Jonatha
 
 Source code to accompany our [paper](https://arxiv.org/abs/1809.02925).
 
-Install Dependencies
+Getting Started
 --------------------
 
-We use Python 3.5.4rc1. You may also need to install a number of dependencies.
+We use conda to setup the environments, but any other package manager should suffice. We use Python 3.5.4
 
-    pip3 install gym
-    pip3 install --upgrade tensorflow tensorflow_probability
-    pip3 install absl-py
-
-You will also need to install Mujoco and use a valid license. Follow the install
-instructions [here](https://github.com/openai/mujoco-py).
+```
+pip install -r requirements.txt
+wget https://www.roboti.us/download/mjpro150_linux.zip
+unzip mjpro150
+mkdir .mujoco
+mv mjpro150 .mujoco/mjpro150
+cd .mujoco
+wget https://www.roboti.us/file/mjkey.txt
+cd
+pip install -U 'mujoco-py<1.50.2,>=1.50.1'
+python -c 'import mujoco_py'
+```
 
 Generating / Downloading Expert Trajectories:
 -------------------------------
 
 Clone the repo of expert trajectories:
 
-    cd /data/dac/  # We will assume access to this directory.
-    git clone git@github.com:ikostrikov/gail-experts.git
+```
+cd /data/dac/  # We will assume access to this directory.
+git clone https://github.com/ikostrikov/gail-experts.git
+```
 
 Then use our import script to turn them into checkpoints (~1-2 hours):
 
-    python3 generate_expert_data.py \
-      --src_data_dir /data/dac/gail-experts/ \
-      --dst_data_dir /data/dac/gail-experts/
+```
+python generate_expert_data.py --src_data_dir /data/dac/gail-experts/ --dst_data_dir /data/dac/gail-experts/
+```
 
 Running Training
 ----------------
