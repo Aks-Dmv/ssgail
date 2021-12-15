@@ -118,20 +118,21 @@ class GAIL(object):
 
     # Avoid using tensorflow random functions since it's impossible to get
     # the state of the random number generator used by TensorFlow.
-    alpha = np.random.uniform(size=(inputs.get_shape()[0], 1))
+    alpha = np.random.uniform(size=(inputs.get_shape()[0], 1))*2.0 - 1.0
     alpha = contrib_eager_python_tfe.Variable(alpha.astype('float32'))
     inter = alpha * inputs + (1 - alpha) * expert_inputs
 
     with tf.GradientTape() as tape:
       output = self.discriminator(inputs)
       expert_output = self.discriminator(expert_inputs)
+      inter_output = self.discriminator(inter)
 
       with contrib_summary.record_summaries_every_n_global_steps(
           100, self.disc_step):
-        gan_loss = contrib_gan_python_losses_python_losses_impl.modified_discriminator_loss(
+        gan_loss = contrib_gan_python_losses_python_losses_impl.least_squares_discriminator_loss(
             expert_output,
             output,
-            label_smoothing=0.0,
+            # label_smoothing=0.0,
             real_weights=expert_weight)
         contrib_summary.scalar(
             'discriminator/expert_output',
@@ -142,12 +143,7 @@ class GAIL(object):
             tf.reduce_mean(output),
             step=self.disc_step)
 
-      with tf.GradientTape() as tape2:
-        tape2.watch(inter)
-        output = self.discriminator(inter)
-        grad = tape2.gradient(output, [inter])[0]
-
-      grad_penalty = tf.reduce_mean(tf.pow(tf.norm(grad, axis=-1) - 1, 2))
+      grad_penalty = tf.losses.mean_squared_error(alpha, inter_output)
 
       loss = gan_loss + self.lambd * grad_penalty
 
