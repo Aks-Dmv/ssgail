@@ -67,7 +67,7 @@ class GAIL(object):
   Instead of the original GAN, it uses WGAN (https://arxiv.org/pdf/1704.00028).
   """
 
-  def __init__(self, input_dim, subsampling_rate, lambd=10.0, gail_loss='airl'):
+  def __init__(self, input_dim, subsampling_rate, lambd=10.0, gail_loss='airl', d_lr=0.001):
     """Initializes actor, critic, target networks and optimizers.
 
     Args:
@@ -85,7 +85,7 @@ class GAIL(object):
       self.disc_step = contrib_eager_python_tfe.Variable(
           0, dtype=tf.int64, name='step')
       self.discriminator = Discriminator(input_dim)
-      self.discriminator_optimizer = tf.train.AdamOptimizer()
+      self.discriminator_optimizer = tf.train.AdamOptimizer(learning_rate=d_lr)
       self.discriminator_optimizer._create_slots(self.discriminator.variables)  # pylint: disable=protected-access
 
   def update(self, batch, expert_batch):
