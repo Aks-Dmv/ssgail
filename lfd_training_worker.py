@@ -51,6 +51,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_float('exploration_noise', 0.1,
                    'Scale of noise used for exploration.')
 flags.DEFINE_float('actor_lr', 1e-3, 'Initial actor learning rate.')
+flags.DEFINE_float('d_lr', 1e-3, 'Initial actor learning rate.')
 flags.DEFINE_integer('random_actions', int(1e4),
                      'Number of random actions to sample to replay buffer '
                      'before sampling policy actions.')
@@ -64,7 +65,8 @@ flags.DEFINE_integer('num_expert_trajectories', 11,
                      'Number of trajectories taken from the expert.')
 flags.DEFINE_integer('trajectory_size', 50,
                      'Size of every trajectory after subsampling.')
-flags.DEFINE_integer('updates_per_step', 1, 'Number of updates per step.')
+flags.DEFINE_integer('updates_per_step', 3, 'Number of updates per step.')
+flags.DEFINE_integer('d_updates_per_step', 3, 'Number of D updates per step.')
 flags.DEFINE_integer('batch_size', 100, 'Batch size.')
 flags.DEFINE_integer('min_samples_to_start', 1000,
                      'Minimal number of samples in replay buffer to start '
@@ -77,7 +79,7 @@ flags.DEFINE_string('gail_loss', 'airl',
                     'GAIL loss to use, gail is -log(1-sigm(D)), airl is D : '
                     'gail | airl.')
 flags.DEFINE_integer('save_interval', int(1e5), 'Save every N timesteps.')
-flags.DEFINE_integer('eval_save_interval', int(5e3),
+flags.DEFINE_integer('eval_save_interval', int(5e4),
                      'Save for evaluation every N timesteps.')
 flags.DEFINE_integer('seed', 42, 'Fixed random seed for training.')
 flags.DEFINE_boolean('use_gpu', False,
@@ -121,7 +123,8 @@ def main(_):
   lfd = gail.GAIL(
       obs_shape[0] + act_shape[0],
       subsampling_rate=subsampling_rate,
-      gail_loss=FLAGS.gail_loss)
+      gail_loss=FLAGS.gail_loss,
+      d_lr=FLAGS.d_lr)
 
   if FLAGS.algo == 'td3':
     model = ddpg_td3.DDPG(
@@ -217,7 +220,7 @@ def main(_):
       # Decay helps to make the model more stable.
       # TODO(agrawalk): Use tf.train.exponential_decay
       model.actor_lr.assign(
-          model.initial_actor_lr * pow(0.5, total_numsteps // 100000))
+          model.initial_actor_lr * pow(0.5, total_numsteps // 50000))
       logging.info('Learning rate %f', model.actor_lr.numpy())
       rollout_reward, rollout_timesteps = do_rollout(
           env,
@@ -244,7 +247,7 @@ def main(_):
         contrib_summary.scalar('length', rollout_timesteps, step=total_numsteps)
 
       if len(replay_buffer) >= FLAGS.min_samples_to_start:
-        for _ in range(rollout_timesteps):
+        for _ in range(FLAGS.d_updates_per_step * rollout_timesteps):
           time_step = replay_buffer.sample(batch_size=FLAGS.batch_size)
           batch = TimeStep(*zip(*time_step))
 
@@ -261,7 +264,7 @@ def main(_):
               update_actor=model.critic_step.numpy() >=
               FLAGS.policy_updates_delay)
 
-        if total_numsteps - prev_save_timestep >= FLAGS.save_interval:
+        if False:#total_numsteps - prev_save_timestep >= FLAGS.save_interval:
           replay_buffer_var.assign(zlib.compress(pickle.dumps(replay_buffer)))
           expert_replay_buffer_var.assign(
               zlib.compress(pickle.dumps(expert_replay_buffer)))
@@ -274,7 +277,7 @@ def main(_):
               global_step=total_numsteps)
           prev_save_timestep = total_numsteps
 
-        if total_numsteps - prev_eval_save_timestep >= FLAGS.eval_save_interval:
+        if False:#total_numsteps - prev_eval_save_timestep >= FLAGS.eval_save_interval:
           eval_saver.save(
               os.path.join(FLAGS.eval_save_dir, 'checkpoint'),
               global_step=total_numsteps)
