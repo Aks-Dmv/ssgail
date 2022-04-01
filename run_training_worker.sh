@@ -15,14 +15,15 @@
 #!/bin/bash
 
 root_dir='tmp/'
-seed=${1:-0}
-env='HalfCheetah-v2'
-expert_env='HalfCheetah-v1'
+seed=${1:-1}
+env='Walker2d-v2'
+expert_env='Walker2d-v1'
 num_trajs=4
-expert_dir='data/ssgail/gail-experts'
+expert_dir='data/dac/gail-experts'
 use_gpu=false
 learn_absorbing=true
 gail_loss='airl'
+d_lr="0.00${2:-1}"
 
 name="lfd_state_action_traj_${num_trajs}_${env}_${seed}"
 python3 lfd_training_worker.py \
@@ -35,5 +36,6 @@ python3 lfd_training_worker.py \
   --seed=${seed} \
   --num_expert_trajectories=${num_trajs} \
   --learn_absorbing=${learn_absorbing} \
-  --gail_loss=${gail_loss}
+  --gail_loss=${gail_loss} \
+  --d_lr=${d_lr}
 
