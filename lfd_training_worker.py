@@ -216,42 +216,45 @@ def main(_):
     random.setstate(pickle.loads(py_random_state_var.numpy()))
 
   with summary_writer.as_default():
+    imagine_curr = 0
     while total_numsteps < FLAGS.training_steps:
       # Decay helps to make the model more stable.
       # TODO(agrawalk): Use tf.train.exponential_decay
       model.actor_lr.assign(
-          model.initial_actor_lr * pow(0.5, total_numsteps // 50000))
+          model.initial_actor_lr * pow(0.5, imagine_curr // 50000))
       logging.info('Learning rate %f', model.actor_lr.numpy())
-      rollout_reward, rollout_timesteps = do_rollout(
-          env,
-          model.actor,
-          replay_buffer,
-          noise_scale=FLAGS.exploration_noise,
-          rand_actions=rand_actions,
-          sample_random=(model.actor_step.numpy() == 0),
-          add_absorbing_state=FLAGS.learn_absorbing)
-      total_numsteps += rollout_timesteps
+      imagine_curr += 1
+      if np.random.random_sample() > imagine_curr/50000:
+        rollout_reward, rollout_timesteps = do_rollout(
+            env,
+            model.actor,
+            replay_buffer,
+            noise_scale=FLAGS.exploration_noise,
+            rand_actions=rand_actions,
+            sample_random=(model.actor_step.numpy() == 0),
+            add_absorbing_state=FLAGS.learn_absorbing)
+        total_numsteps += rollout_timesteps
 
-      logging.info('Training: total timesteps %d, episode reward %f',
-                   total_numsteps, rollout_reward)
+        logging.info('Training: total timesteps %d, episode reward %f',
+                    total_numsteps, rollout_reward)
 
-      print('Training: total timesteps {}, episode reward {}'.format(
-          total_numsteps, rollout_reward))
+        print('Training: total timesteps {}, episode reward {}'.format(
+            total_numsteps, rollout_reward))
 
-      with contrib_summary.always_record_summaries():
-        contrib_summary.scalar(
-            'reward/scaled', (rollout_reward - random_reward) /
-            (reward_scale.numpy() - random_reward),
-            step=total_numsteps)
-        contrib_summary.scalar('reward', rollout_reward, step=total_numsteps)
-        contrib_summary.scalar('length', rollout_timesteps, step=total_numsteps)
-      
-      imagine_rollout(
-          model.actor,
-          replay_buffer,
-          expert_replay_buffer,
-          noise_scale=FLAGS.exploration_noise,
-          add_absorbing_state=FLAGS.learn_absorbing)
+        with contrib_summary.always_record_summaries():
+          contrib_summary.scalar(
+              'reward/scaled', (rollout_reward - random_reward) /
+              (reward_scale.numpy() - random_reward),
+              step=total_numsteps)
+          contrib_summary.scalar('reward', rollout_reward, step=total_numsteps)
+          contrib_summary.scalar('length', rollout_timesteps, step=total_numsteps)
+      else:
+        imagine_rollout(
+            model.actor,
+            replay_buffer,
+            expert_replay_buffer,
+            noise_scale=FLAGS.exploration_noise,
+            add_absorbing_state=FLAGS.learn_absorbing)
 
       if len(replay_buffer) >= FLAGS.min_samples_to_start:
         for _ in range(FLAGS.d_updates_per_step * rollout_timesteps):
