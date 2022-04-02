@@ -41,7 +41,7 @@ import numpy as np
 from replay_buffer import ReplayBuffer
 from replay_buffer import TimeStep
 import tensorflow.compat.v1 as tf
-from utils import do_rollout
+from utils import do_rollout, imagine_rollout
 from tensorflow.contrib import summary as contrib_summary
 from tensorflow.contrib.eager.python import tfe as contrib_eager_python_tfe
 # pylint: enable=g-import-not-at-top,g-bad-import-order
@@ -245,6 +245,13 @@ def main(_):
             step=total_numsteps)
         contrib_summary.scalar('reward', rollout_reward, step=total_numsteps)
         contrib_summary.scalar('length', rollout_timesteps, step=total_numsteps)
+      
+      imagine_rollout(
+          model.actor,
+          replay_buffer,
+          expert_replay_buffer,
+          noise_scale=FLAGS.exploration_noise,
+          add_absorbing_state=FLAGS.learn_absorbing)
 
       if len(replay_buffer) >= FLAGS.min_samples_to_start:
         for _ in range(FLAGS.d_updates_per_step * rollout_timesteps):

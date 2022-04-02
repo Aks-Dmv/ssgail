@@ -110,3 +110,44 @@ def do_rollout(env,
       replay_buffer.push_back(absorbing_state, action, absorbing_state, [0.0],
                               [Mask.ABSORBING.value], False)
   return total_reward / num_trajectories, total_timesteps // num_trajectories
+
+
+def imagine_rollout(actor,
+               replay_buffer,
+               expert_replay_buffer,
+               noise_scale=0.1,
+               sample_size=50,
+               num_trajectories=1,
+               add_absorbing_state=False):
+  """Imagine N rollouts.
+
+  Args:
+      actor: policy to take actions.
+      replay_buffer: replay buffer to collect samples.
+      expert_replay_buffer: expert replay buffer to sample expert states.
+      num_trajectories: number of num_trajectories to collect.
+      add_absorbing_state: whether to add an absorbing state.
+  Returns:
+    True
+  """
+  if replay_buffer is None:
+    return
+
+  for _ in range(num_trajectories):
+    time_step = expert_replay_buffer.sample(batch_size=sample_size)
+    expert_batch = TimeStep(*zip(*time_step))
+
+    expert_obs = contrib_eager_python_tfe.Variable(
+        np.stack(expert_batch.obs).astype('float32'))
+    
+    expert_action = actor(expert_obs).numpy()
+    if noise_scale > 0:
+      expert_action += np.random.normal(size=expert_action.shape) * noise_scale
+    expert_action = expert_action.clip(-1, 1)
+
+    expert_batch = expert_batch._replace(action=list(expert_action.numpy()))
+
+    list_of_timesteps = [TimeStep(*args) for args in zip(*list(expert_batch))]
+    replay_buffer._buffer.extend(list_of_timesteps)
+
+  return
