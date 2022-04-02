@@ -224,7 +224,7 @@ def main(_):
           model.initial_actor_lr * pow(0.5, imagine_curr // 50000))
       logging.info('Learning rate %f', model.actor_lr.numpy())
       imagine_curr += 1
-      if np.random.random_sample() > imagine_curr/50000:
+      if imagine_curr==1 or np.random.random_sample() < imagine_curr/50000:
         rollout_reward, rollout_timesteps = do_rollout(
             env,
             model.actor,

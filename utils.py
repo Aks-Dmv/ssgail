@@ -22,7 +22,7 @@ from __future__ import print_function
 from common import Mask
 import numpy as np
 from tensorflow.contrib.eager.python import tfe as contrib_eager_python_tfe
-
+from replay_buffer import TimeStep
 
 def soft_update(vars_, target_vars, tau=1.0):
   """Performs soft updates of the target networks.
@@ -145,7 +145,7 @@ def imagine_rollout(actor,
       expert_action += np.random.normal(size=expert_action.shape) * noise_scale
     expert_action = expert_action.clip(-1, 1)
 
-    expert_batch = expert_batch._replace(action=list(expert_action.numpy()))
+    expert_batch = expert_batch._replace(action=list(expert_action))
 
     list_of_timesteps = [TimeStep(*args) for args in zip(*list(expert_batch))]
     replay_buffer._buffer.extend(list_of_timesteps)
